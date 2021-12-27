@@ -59,6 +59,9 @@ void zapiszOsobeWPliku ( Adresat obiekt ) {
     plik.close();
 }
 void wczytajNaNowoDoPliku () {
+	ofstream plik;
+    plik.open ( "ksiazka.txt" );
+    plik.close();
     for ( int i = 0; i < adresaci.size(); i++ )
         zapiszOsobeWPliku ( adresaci[i] );
 }
