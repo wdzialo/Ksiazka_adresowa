@@ -18,10 +18,19 @@ vector<Adresat> adresaci;
 vector<Urzytkownik> urzytkownicy;
 
 int idUrzytkownika ;
+int idKolejnyAdresat;
+
 
 void wczytajNaNowoDoPliku ();
+void wczytajStartAdresaci ( int usuwaAdresata, int idZmienianegoAdresata );
 void menu_logowanie();
 
+int poprosID () {
+    int ID;
+    cout << "Podaj ID adresata: ";
+    cin >> ID;
+    return ID;
+}
 void wyswietlJednegoAdresata ( int i ) {
     cout << adresaci[ i ].imie << "\n";
     cout << adresaci[ i ].nazwisko << "\n";
@@ -29,6 +38,102 @@ void wyswietlJednegoAdresata ( int i ) {
     cout << adresaci[ i ].mail << "\n";
     cout << adresaci[ i ].adres << "\n";
     cout << "id: " << adresaci[ i ].id << "\n";
+}
+int zamienID_na_i ( int ID ) {
+    int blad = 1;
+    for ( int i = 0; i < adresaci.size(); i++ ) {
+        if ( adresaci[i].id == ID ) {
+            blad = 0;
+            return i;
+        }
+    }
+    if ( blad == 1 ) {
+        cout << "Bledne ID \n ";
+        return blad = -1;
+    }
+}
+void zapiszWszystoWAdresaci () {
+    remove ( "Adresaci.txt" );
+    rename ( "Adresaci_tymczasowy.txt", "Adresaci.txt" );
+}
+void wyloguj() {
+    adresaci.clear();
+    idUrzytkownika = 0;
+    menu_logowanie();
+}
+void zmienHaslo() {
+    string noweHaslo, stareHaslo;
+    cout << "Podaj stare haslo: ";
+    cin >> stareHaslo;
+    if ( urzytkownicy[idUrzytkownika - 1].haslo == stareHaslo ) {
+        cout << "Wprowadz nowe haslo: ";
+        cin >> noweHaslo;
+        urzytkownicy[idUrzytkownika - 1].haslo = noweHaslo;
+        wczytajNaNowoDoPliku ();
+        system ( "cls" );
+        cout << "Haslo zminione \n";
+    } else
+        cout << "Bledne haslo \n";
+}
+void edytujAdresata ( int ID ) {
+    int i = zamienID_na_i ( ID );
+    int wybor = 0;
+    string zmiana;
+    if ( i >= 0 ) {
+        cout << "1 - imie \n";
+        cout << "2 - nazwisko \n";
+        cout << "3 - numer telefonu \n";
+        cout << "4 - email \n";
+        cout << "5 - adres \n";
+        cout << "6 - powrot do menu \n";
+        cin >> wybor;
+        if ( wybor < 6 ) {
+            cin >> zmiana;
+            switch ( wybor ) {
+            case 1:
+                adresaci[i].imie = zmiana;
+                break;
+            case 2:
+                adresaci[i].nazwisko = zmiana;
+                break;
+            case 3:
+                adresaci[i].telefon = zmiana;
+                break;
+            case 4:
+                adresaci[i].mail = zmiana;
+                break;
+            case 5:
+                adresaci[i].adres = zmiana;
+                break;
+            }
+        }
+        wczytajStartAdresaci ( 0, ID );
+        system ( "cls" );
+    }
+}
+void usunAdresata ( int ID ) {
+    int i = zamienID_na_i ( ID );
+    char potwierdzenie;
+    if ( i >= 0 ) {
+        cout << "Potwierdz  t  by usunac, inny znak by anulowac :\n";
+        wyswietlJednegoAdresata ( i );
+        cin >> potwierdzenie;
+        if ( potwierdzenie == 't' ) {
+            adresaci.erase ( adresaci.begin() +  i );
+            wczytajStartAdresaci ( 1, ID );
+        } else
+            cout << "Usuwanie anulowane \n";
+    }
+}
+void wyswietlWszystkichAdresatow() {
+    if ( adresaci.size() <= 0 )
+        cout << "Ksiazka jest pusta \n";
+    else {
+        for ( int i = 0; i < adresaci.size(); i++ ) {
+            wyswietlJednegoAdresata ( i );
+            cout << "\n";
+        }
+    }
 }
 void szukajOsoby ( string szukane ) {
     string wyraz;
@@ -48,95 +153,28 @@ void szukajOsoby ( string szukane ) {
             cout << "Nie znaleziono " << szukane << "\n";
     }
 }
-int pobierzID() {
-    int id = 0;
-    if ( adresaci.size() > 0 ) {
-        cout << "Potaj ID adresata \n";
-        cin >> id;
-        for ( int i = 0; i <= adresaci.size(); i++ ) {
-            if ( adresaci[i].id == id )
-                return id = i;
-            else if ( i == adresaci.size() - 1 )
-                return id = -1 ;
-        }
-    } else {
-        cout << "Ksiazka jest pusta\n";
-        return id = -1 ;
-    }
+string zmienAdresatNaString ( Adresat obiekt ) {
+    string id_adresata =  to_string ( obiekt.id );
+    string id_urzytkownika = to_string ( idUrzytkownika );
+    string wierszAdresaci =  id_adresata  + "|" + id_urzytkownika  + "|" + obiekt.imie  + "|" + obiekt.nazwisko  + "|" + obiekt.telefon + "|" + obiekt.mail + "|" + obiekt.adres + "|";
+    return wierszAdresaci;
 }
-void zapiszOsobeWPlikuTymczasowym ( Adresat obiekt ) {
+void zapiszAdresataWPlikuAdresaci ( Adresat obiekt ) {
     fstream plik;
-    plik.open ( "Adresaci_tymczasowy.txt", ios::out | ios::app );
+    plik.open ( "Adresaci.txt", ios::out | ios::app );
     plik << obiekt.id << "|";
     plik << idUrzytkownika << "|";
     plik << obiekt.imie << "|";
-    plik << obiekt.telefon << "|";
     plik << obiekt.nazwisko << "|";
+    plik << obiekt.telefon << "|";
     plik << obiekt.mail << "|";
     plik << obiekt.adres << "| \n";
     plik.close();
 }
-void zapiszWszystoWAdresaci () {
-    remove ( "Adresaci.txt" );
-    for ( int i = 0; i < adresaci.size(); i++ )
-        zapiszOsobeWPlikuTymczasowym ( adresaci[i] );
-    rename ( "Adresaci_tymczasowy.txt", "Adresaci.txt" );
-}
-void zmienHaslo() {
-    string noweHaslo, stareHaslo;
-    cout << "Podaj stare haslo: ";
-    cin >> stareHaslo;
-    if ( urzytkownicy[idUrzytkownika - 1].haslo == stareHaslo ) {
-        cout << "Wprowadz nowe haslo: ";
-        cin >> noweHaslo;
-        urzytkownicy[idUrzytkownika - 1].haslo = noweHaslo;
-        wczytajNaNowoDoPliku ();
-        system ( "cls" );
-        cout << "Haslo zminione \n";
-    } else
-        cout << "Bledne haslo \n";
-}
-void edytujAdresata() {
-    int id = pobierzID();
-    int x = 0;
-    string zmiana;
-    if ( id >= 0 ) {
-        cout << "1 - imie \n";
-        cout << "2 - nazwisko \n";
-        cout << "3 - numer telefonu \n";
-        cout << "4 - email \n";
-        cout << "5 - adres \n";
-        cout << "6 - powrót do menu \n";
-        cin >> x;
-        cin >> zmiana;
-        switch ( x ) {
-        case 1:
-            adresaci[id].imie = zmiana;
-            break;
-        case 2:
-            adresaci[id].nazwisko = zmiana;
-            break;
-        case 3:
-            adresaci[id].telefon = zmiana;
-            break;
-        case 4:
-            adresaci[id].mail = zmiana;
-            break;
-        case 5:
-            adresaci[id].adres = zmiana;
-            break;
-        }
-        system ( "cls" );
-    } else
-        cout << "Bledne ID\n";
-}
 void dodajAdresata() {
     Adresat obiekt;
 
-    if ( adresaci.size() == 0 )
-        obiekt.id = 1;
-    else
-        obiekt.id = adresaci[adresaci.size() - 1].id + 1;
+    obiekt.id = idKolejnyAdresat;
     cout << "Podaj imie: ";
     cin >> obiekt.imie;
     cout << "Podaj nazwisko: ";
@@ -151,38 +189,7 @@ void dodajAdresata() {
     cin.sync();
     getline ( cin, obiekt.adres );
     adresaci.push_back ( obiekt );
-}
-void wyloguj() {
-    zapiszWszystoWAdresaci();
-    adresaci.clear();
-    idUrzytkownika = 0;
-    menu_logowanie();
-}
-void usunAdresata( ) {
-    int id;
-    char wybor;
-    id = pobierzID();
-
-    if ( id >= 0 ) {
-        cout << "Potwierdz  t  by usunac, lub inny znak by anulowac usuwanie adresata :\n";
-        wyswietlJednegoAdresata ( id );
-        cin >> wybor;
-        if ( wybor == 't' )
-            adresaci.erase ( adresaci.begin() + id );
-        else
-            cout << "Usuwanie anulowane \n";
-    } else
-        cout << "Bledne ID \n";
-}
-void wyswietlWszystkichAdresatow() {
-    if ( adresaci.size() <= 0 )
-        cout << "Ksiazka jest pusta \n";
-    else {
-        for ( int i = 0; i < adresaci.size(); i++ ) {
-            wyswietlJednegoAdresata ( i );
-            cout << "\n";
-        }
-    }
+    zapiszAdresataWPlikuAdresaci ( obiekt );
 }
 void menuKsiazka ( int idUrzytkownika ) {
     int x = 0;
@@ -212,10 +219,10 @@ void menuKsiazka ( int idUrzytkownika ) {
         wyswietlWszystkichAdresatow();
         break;
     case 5:
-        usunAdresata();
+        usunAdresata ( poprosID() );
         break;
     case 6:
-        edytujAdresata();
+        edytujAdresata ( poprosID() );
         break;
     case 7:
         zmienHaslo();
@@ -224,7 +231,6 @@ void menuKsiazka ( int idUrzytkownika ) {
         wyloguj();
         break;
     case 9:
-        zapiszWszystoWAdresaci();
         exit ( 0 );
     }
     menuKsiazka ( idUrzytkownika );
@@ -235,9 +241,9 @@ void zapiszWAdresaciTymczasowy ( string wiersz ) {
     plik << wiersz << "\n";
     plik.close();
 }
-void wczytajOsobeZPliku ( string daneOsoby ) {
+void zapiszUsunWierszAdresaci ( string daneOsoby, int usuwa, int idAdresataZmienjonego ) {
     string wynik = "";
-    int haslo = 0;
+    int wierszZapisacDoWektora;
     int linia = -1;
     Adresat obiekt;
     for ( int i = 0; i <= daneOsoby.size(); i++ ) {
@@ -245,23 +251,33 @@ void wczytajOsobeZPliku ( string daneOsoby ) {
             wynik += daneOsoby[ i ];
         else if ( daneOsoby[ i ] == '|' ) {
             linia++;
-            if ( linia == 0 )
+            if ( linia == 0 ) {
                 obiekt.id = atoi ( wynik.c_str() );
-            if   ( linia == 1 ) {
-                if ( idUrzytkownika == atoi ( wynik.c_str() ) )
-                    haslo = 1;
-                else if ( haslo == 0 )
-                    zapiszWAdresaciTymczasowy ( daneOsoby );
+                idKolejnyAdresat = obiekt.id + 1;
             }
-            if ( ( linia == 2  ) && ( haslo == 1 ) )
+            if   ( linia == 1 ) {
+                if ( idUrzytkownika == atoi ( wynik.c_str() ) ) {
+                    wierszZapisacDoWektora = 1;
+                    if ( idAdresataZmienjonego > 0 ) {
+                        if ( obiekt.id == idAdresataZmienjonego ) {
+                            daneOsoby = zmienAdresatNaString ( adresaci[zamienID_na_i ( idAdresataZmienjonego )] );
+                            if ( usuwa != 0 )
+                                daneOsoby = "";
+                        }
+                        wierszZapisacDoWektora = 0;
+                    }
+                }
+                zapiszWAdresaciTymczasowy ( daneOsoby );
+            }
+            if ( ( linia == 2  ) && ( wierszZapisacDoWektora != 0 ) )
                 obiekt.imie = wynik;
-            if ( ( linia == 3  ) && ( haslo == 1 ) )
+            if ( ( linia == 3  ) && ( wierszZapisacDoWektora  != 0 ) )
                 obiekt.nazwisko = wynik;
-            if ( ( linia == 4  ) && ( haslo == 1 ) )
+            if ( ( linia == 4  ) && ( wierszZapisacDoWektora  != 0 ) )
                 obiekt.telefon = wynik;
-            if ( ( linia == 5  ) && ( haslo == 1 ) )
+            if ( ( linia == 5  ) && ( wierszZapisacDoWektora  != 0 ) )
                 obiekt.mail = wynik;
-            if ( ( linia == 6  ) && ( haslo == 1 ) ) {
+            if ( ( linia == 6  ) && ( wierszZapisacDoWektora  != 0 ) ) {
                 obiekt.adres = wynik;
                 adresaci.push_back ( obiekt );
             }
@@ -269,7 +285,7 @@ void wczytajOsobeZPliku ( string daneOsoby ) {
         }
     }
 }
-void wczytajStartAdresaci() {
+void wczytajStartAdresaci ( int usuwa, int idZmienianegoAdresata ) {
     string wierszZdanymi;
     remove ( "Adresaci_tymczasowy.txt" );
     ifstream plik ( "Adresaci.txt" );
@@ -279,10 +295,11 @@ void wczytajStartAdresaci() {
         for ( int i = 0; plik.eof() != 1; i ) {
             getline ( plik, wierszZdanymi );
             if ( !wierszZdanymi.empty () ) {
-                wczytajOsobeZPliku ( wierszZdanymi );
+                zapiszUsunWierszAdresaci ( wierszZdanymi, usuwa, idZmienianegoAdresata );
             }
         }
         plik.close();
+        zapiszWszystoWAdresaci ();
     }
 }
 void zapiszUrzytkownikaWPliku ( Urzytkownik urzytkownikLogowanie ) {
@@ -313,7 +330,6 @@ void dodajUrzytkownika() {
     urzytkownicy.push_back ( urzytkownikLogowanie );
     zapiszUrzytkownikaWPliku ( urzytkownikLogowanie );
     system ( "cls" );
-    menu_logowanie();
 }
 void zalogujUrzytkownika ( ) {
     string login, haslo;
@@ -326,7 +342,7 @@ void zalogujUrzytkownika ( ) {
             system ( "cls" );
             if ( urzytkownicy[i].haslo == haslo ) {
                 idUrzytkownika = urzytkownicy[i].id;
-                wczytajStartAdresaci();
+                wczytajStartAdresaci ( 0, 0 );
                 menuKsiazka ( idUrzytkownika );
             }
         }
@@ -335,14 +351,12 @@ void zalogujUrzytkownika ( ) {
 }
 void menu_logowanie() {
     int x = 0;
-    while ( x > 9 || x < 1 ) {
-        cout << "Wybierz :  \n";
-        cout << "1. Logowanie \n";
-        cout << "2. Rejestracja \n";
-        cout << "9. Zakoncz program \n";
-        cin >> x;
-        system ( "cls" );
-    }
+    cout << "Wybierz :  \n";
+    cout << "1. Logowanie \n";
+    cout << "2. Rejestracja \n";
+    cout << "9. Zakoncz program \n";
+    cin >> x;
+    system ( "cls" );
     switch ( x ) {
     case 1:
         zalogujUrzytkownika();
