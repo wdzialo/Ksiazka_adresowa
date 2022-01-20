@@ -20,7 +20,6 @@ vector<Urzytkownik> urzytkownicy;
 int idUrzytkownika ;
 int idKolejnyAdresat;
 
-
 void wczytajNaNowoDoPliku ();
 void wczytajStartAdresaci ( int usuwaAdresata, int idZmienianegoAdresata );
 void menu_logowanie();
@@ -113,14 +112,16 @@ void edytujAdresata ( int ID ) {
 }
 void usunAdresata ( int ID ) {
     int i = zamienID_na_i ( ID );
-    char potwierdzenie;
+    char potwierdzenie = 0;
     if ( i >= 0 ) {
         cout << "Potwierdz  t  by usunac, inny znak by anulowac :\n";
         wyswietlJednegoAdresata ( i );
         cin >> potwierdzenie;
         if ( potwierdzenie == 't' ) {
-            adresaci.erase ( adresaci.begin() +  i );
             wczytajStartAdresaci ( 1, ID );
+            adresaci.erase ( adresaci.begin() +  i );
+            system ( "cls" );
+            cout << "Adresat id:" << ID << " usuniety \n";
         } else
             cout << "Usuwanie anulowane \n";
     }
@@ -187,6 +188,7 @@ void dodajAdresata() {
     cin >> obiekt.mail;
     cout << "Podaj adres: ";
     cin.sync();
+    idKolejnyAdresat++;
     getline ( cin, obiekt.adres );
     adresaci.push_back ( obiekt );
     zapiszAdresataWPlikuAdresaci ( obiekt );
@@ -286,21 +288,25 @@ void zapiszUsunWierszAdresaci ( string daneOsoby, int usuwa, int idAdresataZmien
     }
 }
 void wczytajStartAdresaci ( int usuwa, int idZmienianegoAdresata ) {
-    string wierszZdanymi;
-    remove ( "Adresaci_tymczasowy.txt" );
-    ifstream plik ( "Adresaci.txt" );
-    if ( plik.good() == false )
-        cout << "Ksiazka jest pusta \n";
-    else {
-        for ( int i = 0; plik.eof() != 1; i ) {
-            getline ( plik, wierszZdanymi );
-            if ( !wierszZdanymi.empty () ) {
-                zapiszUsunWierszAdresaci ( wierszZdanymi, usuwa, idZmienianegoAdresata );
+    if ( idZmienianegoAdresata >= 0 ) {
+        string wierszZdanymi;
+        idKolejnyAdresat = 1;
+        remove ( "Adresaci_tymczasowy.txt" );
+        ifstream plik ( "Adresaci.txt" );
+        if ( plik.good() == false )
+            cout << "Ksiazka jest pusta \n";
+        else {
+            for ( int i = 0; plik.eof() != 1; i ) {
+                getline ( plik, wierszZdanymi );
+                if ( !wierszZdanymi.empty () ) {
+                    zapiszUsunWierszAdresaci ( wierszZdanymi, usuwa, idZmienianegoAdresata );
+                }
             }
+            plik.close();
+            zapiszWszystoWAdresaci ();
         }
-        plik.close();
-        zapiszWszystoWAdresaci ();
-    }
+    } else
+        cout << "Nieprawidolowe dane \n";
 }
 void zapiszUrzytkownikaWPliku ( Urzytkownik urzytkownikLogowanie ) {
     fstream plik;
