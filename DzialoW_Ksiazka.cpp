@@ -269,6 +269,7 @@ void zapiszUsunWierszAdresaci ( string daneOsoby, int usuwa, int idAdresataZmien
                         wierszZapisacDoWektora = 0;
                     }
                 }
+                if (daneOsoby != "")
                 zapiszWAdresaciTymczasowy ( daneOsoby );
             }
             if ( ( linia == 2  ) && ( wierszZapisacDoWektora != 0 ) )
