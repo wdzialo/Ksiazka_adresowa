@@ -263,8 +263,10 @@ void zapiszUsunWierszAdresaci ( string daneOsoby, int usuwa, int idAdresataZmien
                     if ( idAdresataZmienjonego > 0 ) {
                         if ( obiekt.id == idAdresataZmienjonego ) {
                             daneOsoby = zmienAdresatNaString ( adresaci[zamienID_na_i ( idAdresataZmienjonego )] );
-                            if ( usuwa != 0 )
+                            if ( usuwa != 0 ) {
                                 daneOsoby = "";
+                                idKolejnyAdresat--;
+                            }
                         }
                         wierszZapisacDoWektora = 0;
                     }
