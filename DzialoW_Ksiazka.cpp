@@ -24,6 +24,15 @@ void wczytajNaNowoDoPliku ();
 void wczytajStartAdresaci ( int usuwaAdresata, int idZmienianegoAdresata );
 void menu_logowanie();
 
+void czyscEkran()
+{
+#ifdef WIN32
+    system(“cls”);
+#else
+    system( "clear" );
+#endif
+}
+
 int poprosID () {
     int ID;
     cout << "Podaj ID adresata: ";
@@ -69,7 +78,7 @@ void zmienHaslo() {
         cin >> noweHaslo;
         urzytkownicy[idUrzytkownika - 1].haslo = noweHaslo;
         wczytajNaNowoDoPliku ();
-        system ( "cls" );
+        czyscEkran();
         cout << "Haslo zminione \n";
     } else
         cout << "Bledne haslo \n";
@@ -107,7 +116,7 @@ void edytujAdresata ( int ID ) {
             }
         }
         wczytajStartAdresaci ( 0, ID );
-        system ( "cls" );
+        czyscEkran();
     }
 }
 void usunAdresata ( int ID ) {
@@ -120,7 +129,7 @@ void usunAdresata ( int ID ) {
         if ( potwierdzenie == 't' ) {
             wczytajStartAdresaci ( 1, ID );
             adresaci.erase ( adresaci.begin() +  i );
-            system ( "cls" );
+            czyscEkran();
             cout << "Adresat id:" << ID << " usuniety \n";
         } else
             cout << "Usuwanie anulowane \n";
@@ -206,7 +215,7 @@ void menuKsiazka ( int idUrzytkownika ) {
     cout << "8. Wyloguj sie \n";
     cout << "9. Zakoncz program \n";
     cin >> x;
-    system ( "cls" );
+    czyscEkran();
     switch ( x ) {
     case 1:
         dodajAdresata();
@@ -325,7 +334,7 @@ void dodajUrzytkownika() {
     cin >> urzytkownikLogowanie.login;
     for ( int i = 0; i < urzytkownicy.size(); i++ ) {
         if ( urzytkownicy[i].login == urzytkownikLogowanie.login ) {
-            system ( "cls" );
+            czyscEkran();
             cout << "Urzytkownik juz istnieje \n";
             menu_logowanie();
         }
@@ -338,7 +347,7 @@ void dodajUrzytkownika() {
     cin >> urzytkownikLogowanie.haslo;
     urzytkownicy.push_back ( urzytkownikLogowanie );
     zapiszUrzytkownikaWPliku ( urzytkownikLogowanie );
-    system ( "cls" );
+    czyscEkran();
 }
 void zalogujUrzytkownika ( ) {
     string login, haslo;
@@ -348,7 +357,7 @@ void zalogujUrzytkownika ( ) {
     cin >> haslo;
     for ( int i = 0; i < urzytkownicy.size(); i++ ) {
         if ( urzytkownicy[i].login == login ) {
-            system ( "cls" );
+            czyscEkran();
             if ( urzytkownicy[i].haslo == haslo ) {
                 idUrzytkownika = urzytkownicy[i].id;
                 wczytajStartAdresaci ( 0, 0 );
@@ -365,7 +374,8 @@ void menu_logowanie() {
     cout << "2. Rejestracja \n";
     cout << "9. Zakoncz program \n";
     cin >> x;
-    system ( "cls" );
+    czyscEkran();
+
     switch ( x ) {
     case 1:
         zalogujUrzytkownika();
