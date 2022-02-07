@@ -1,0 +1,10 @@
+/bin
+/obj
+/zapis
+*.o
+*.exe
+*.cbp
+*.depend
+*.layout
+*.dll
+*.txt
