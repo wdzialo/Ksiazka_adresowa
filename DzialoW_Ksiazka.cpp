@@ -181,14 +181,16 @@ void zapiszAdresataWPlikuAdresaci ( Adresat obiekt ) {
     plik << obiekt.adres << "| \n";
     plik.close();
 }
-void dodajAdresata() {
+void dodajAdresata()
+{
     Adresat obiekt;
 
     obiekt.id = idKolejnyAdresat;
     cout << "Podaj imie: ";
     cin >> obiekt.imie;
     cout << "Podaj nazwisko: ";
-    cin.sync();
+    cin.clear();
+    cin.ignore( 1000, '\n' );
     getline ( cin, obiekt.nazwisko );
     cout << "Podaj nr telefonu: ";
     cin.sync();
@@ -196,7 +198,8 @@ void dodajAdresata() {
     cout << "Podaj email: ";
     cin >> obiekt.mail;
     cout << "Podaj adres: ";
-    cin.sync();
+    cin.clear();
+    cin.ignore( 1000, '\n' );
     idKolejnyAdresat++;
     getline ( cin, obiekt.adres );
     adresaci.push_back ( obiekt );
